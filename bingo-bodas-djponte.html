@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bingo Musical Gratis para tu Boda · DJ Ponte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --ink: #0D0B08;
+  --gold: #B8952A;
+  --gold-light: #D4AF5A;
+  --gold-pale: #F7EDD0;
+  --gold-glow: rgba(184,149,42,0.15);
+  --cream: #FAF6EE;
+  --cream2: #F2EBD9;
+  --warm-gray: #8A8070;
+  --border: rgba(184,149,42,0.25);
+  --white: #FFFFFF;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ink);
+  color: var(--cream);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HERO BACKGROUND ── */
+.hero-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(184,149,42,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 85% 70%, rgba(184,149,42,0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #0D0B08 0%, #151209 50%, #0D0B08 100%);
+}
+.hero-bg::after {
+  content:'';
+  position:absolute; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23B8952A' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── LAYOUT ── */
+.wrap { position:relative; z-index:1; max-width:640px; margin:0 auto; padding:0 20px 60px; }
+
+/* ── HEADER ── */
+header {
+  text-align:center;
+  padding: 52px 0 44px;
+}
+.dj-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  border: 1px solid var(--border);
+  padding: 7px 18px;
+  font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase;
+  color: var(--gold-light);
+  margin-bottom: 28px;
+  background: rgba(184,149,42,0.06);
+  backdrop-filter: blur(4px);
+}
+.dj-badge::before { content:'♪'; font-size:13px; }
+
+header h1 {
+  font-family:'Playfair Display', serif;
+  font-size: clamp(2.4rem, 8vw, 4rem);
+  font-weight:400; line-height:1.1;
+  color: var(--white);
+  margin-bottom:8px;
+}
+header h1 em {
+  font-style:italic; color: var(--gold-light);
+  display:block;
+}
+.hero-sub {
+  font-size:15px; color: var(--warm-gray); font-weight:300;
+  line-height:1.65; max-width:420px; margin:16px auto 0;
+}
+
+/* FREE BADGE */
+.free-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background: var(--gold); color: var(--ink);
+  font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  padding: 5px 14px; margin-top:20px;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap {
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:32px;
+}
+.progress-step {
+  flex:1; text-align:center;
+  font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+  color: var(--warm-gray); font-weight:500;
+  transition: color 0.3s;
+}
+.progress-step.active { color: var(--gold-light); }
+.progress-step.done { color: var(--gold); }
+.progress-dot {
+  width:8px; height:8px; border-radius:50%;
+  background: rgba(255,255,255,0.1); flex-shrink:0;
+  transition: background 0.3s;
+}
+.progress-dot.active { background: var(--gold); box-shadow:0 0 8px var(--gold); }
+.progress-dot.done { background: var(--gold-light); }
+.progress-line {
+  flex:2; height:1px;
+  background: linear-gradient(to right, var(--gold), rgba(184,149,42,0.1));
+  opacity:0.4;
+}
+
+/* ── SCREENS ── */
+.screen { display:none; }
+.screen.active { display:block; animation: fadeUp 0.45s cubic-bezier(.16,1,.3,1); }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* ── CARD CONTAINER ── */
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  padding: 28px;
+  margin-bottom:20px;
+}
+.card-title {
+  font-family:'Playfair Display', serif;
+  font-size:1.45rem; font-weight:400; font-style:italic;
+  color: var(--white); margin-bottom:6px;
+}
+.card-sub { font-size:13px; color: var(--warm-gray); font-weight:300; margin-bottom:22px; }
+
+/* ── COUNTER ── */
+.counter-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background: rgba(184,149,42,0.08);
+  border: 1px solid var(--border);
+  margin-bottom:18px;
+  gap: 12px;
+}
+.counter-label { font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--warm-gray); }
+.counter-val {
+  font-family:'Playfair Display', serif;
+  font-size:1.6rem; color:var(--gold-light); font-weight:700;
+  transition: transform 0.15s; flex-shrink:0;
+}
+.counter-val.bump { transform:scale(1.35); }
+.counter-right {
+  display:flex; align-items:center; gap:8px; flex-shrink:0;
+}
+.counter-slash { color:var(--warm-gray); font-size:14px; }
+.counter-total { color:var(--warm-gray); font-size:14px; }
+.counter-track {
+  height:3px; background:rgba(255,255,255,0.06);
+  flex:1; min-width:40px;
+}
+.counter-fill {
+  height:100%; background: linear-gradient(to right, var(--gold), var(--gold-light));
+  transition: width 0.3s ease;
+}
+
+/* ── CATEGORY TABS ── */
+.cat-tabs {
+  display:flex; gap:6px; overflow-x:auto; margin-bottom:16px;
+  -ms-overflow-style:none; scrollbar-width:none; padding-bottom:2px;
+}
+.cat-tabs::-webkit-scrollbar { display:none; }
+.cat-tab {
+  flex-shrink:0; padding:7px 15px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:transparent; cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500;
+  letter-spacing:0.5px; color:var(--warm-gray);
+  transition: all 0.2s; white-space:nowrap;
+}
+.cat-tab.active { background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+.cat-tab:hover:not(.active) { border-color:var(--gold-light); color:var(--gold-light); }
+
+/* ── SONGS GRID ── */
+.songs-grid {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:6px;
+  max-height:320px; overflow-y:auto; margin-bottom:20px;
+  padding-right:2px;
+}
+.songs-grid::-webkit-scrollbar { width:2px; }
+.songs-grid::-webkit-scrollbar-thumb { background:var(--gold); border-radius:2px; }
+
+.song-chip {
+  padding:11px 14px; border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03); cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:12.5px;
+  color:var(--cream); text-align:left; line-height:1.3;
+  transition: all 0.18s; position:relative; overflow:hidden;
+}
+.song-chip::before {
+  content:''; position:absolute; inset:0;
+  background: var(--gold-glow); opacity:0; transition:opacity 0.2s;
+}
+.song-chip:hover { border-color:var(--gold-light); }
+.song-chip:hover::before { opacity:1; }
+.song-chip.selected {
+  background: linear-gradient(135deg, rgba(184,149,42,0.2), rgba(184,149,42,0.1));
+  border-color:var(--gold);
+  color:var(--gold-light); font-weight:500;
+}
+.song-chip.selected::after {
+  content:'✓'; position:absolute; right:10px; top:50%;
+  transform:translateY(-50%); color:var(--gold); font-size:13px;
+}
+
+/* ── SELECTED TAGS ── */
+.sel-section { margin-bottom:20px; }
+.sel-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--warm-gray); font-weight:600; margin-bottom:10px; }
+.sel-tags { display:flex; flex-wrap:wrap; gap:6px; min-height:28px; }
+.sel-tag {
+  display:flex; align-items:center; gap:5px;
+  padding:4px 10px; background:rgba(184,149,42,0.12);
+  border:1px solid var(--border); font-size:12px; color:var(--cream);
+  cursor:pointer; transition:all 0.15s;
+}
+.sel-tag:hover { border-color:#c0392b; }
+.sel-tag .x { color:var(--gold); font-size:15px; line-height:1; }
+.sel-tag:hover .x { color:#e74c3c; }
+.empty-note { font-size:12px; color:var(--warm-gray); font-style:italic; }
+
+/* ── BUTTONS ── */
+.btn {
+  width:100%; padding:17px; border:none; cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:3px; text-transform:uppercase; position:relative;
+  overflow:hidden; transition:all 0.25s;
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--ink);
+}
+.btn-gold:hover { filter:brightness(1.1); transform:translateY(-1px); box-shadow:0 8px 24px rgba(184,149,42,0.35); }
+.btn-gold:disabled { opacity:0.3; cursor:not-allowed; transform:none; box-shadow:none; filter:none; }
+.btn-outline {
+  background:transparent; color:var(--cream);
+  border:1px solid rgba(255,255,255,0.2); margin-top:10px;
+}
+.btn-outline:hover { border-color:var(--gold-light); color:var(--gold-light); }
+.btn-whatsapp {
+  background: #25D366; color:white;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.btn-whatsapp:hover { filter:brightness(1.1); }
+
+/* ── FORM ── */
+.form-group { margin-bottom:18px; }
+.form-group label {
+  display:block; font-size:10px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--warm-gray); font-weight:600; margin-bottom:8px;
+}
+.form-group input, .form-group select {
+  width:100%; padding:13px 16px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+  font-family:'DM Sans',sans-serif; font-size:14px; color:var(--cream);
+  outline:none; transition:border-color 0.2s;
+  -webkit-appearance:none;
+}
+.form-group input::placeholder { color:var(--warm-gray); }
+.form-group input:focus, .form-group select:focus { border-color:var(--gold); background:rgba(184,149,42,0.06); }
+.form-group select { cursor:pointer; background-color:#1A1610; }
+.form-group select option { background:#1A1610; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+/* DJ STATUS — QUALIFIER */
+.dj-qualifier {
+  border:1px solid var(--border);
+  background: linear-gradient(135deg, rgba(184,149,42,0.08), rgba(184,149,42,0.03));
+  padding:20px; margin-bottom:20px;
+}
+.dj-qualifier-title {
+  font-family:'Playfair Display', serif;
+  font-size:1.05rem; font-style:italic; color:var(--white);
+  margin-bottom:14px;
+}
+.dj-options { display:flex; flex-direction:column; gap:8px; }
+.dj-opt {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px; border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer; transition:all 0.2s; background:rgba(255,255,255,0.02);
+}
+.dj-opt:hover { border-color:var(--gold-light); }
+.dj-opt.selected { border-color:var(--gold); background:rgba(184,149,42,0.12); }
+.dj-opt input[type=radio] { display:none; }
+.dj-radio {
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid rgba(255,255,255,0.3); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s;
+}
+.dj-opt.selected .dj-radio {
+  border-color:var(--gold);
+  background:var(--gold);
+  box-shadow:0 0 8px var(--gold);
+}
+.dj-opt.selected .dj-radio::after { content:''; width:6px; height:6px; border-radius:50%; background:var(--ink); }
+.dj-opt-text { font-size:13.5px; color:var(--cream); line-height:1.4; }
+.dj-opt-sub { font-size:11px; color:var(--warm-gray); display:block; margin-top:1px; }
+
+/* HOT LEAD BANNER */
+.hot-lead {
+  display:none;
+  background: linear-gradient(135deg, rgba(184,149,42,0.2), rgba(184,149,42,0.08));
+  border:1px solid var(--gold);
+  padding:16px 20px; margin-bottom:20px; text-align:center;
+}
+.hot-lead.show { display:block; }
+.hot-lead p { font-size:13px; color:var(--gold-light); line-height:1.5; }
+.hot-lead strong { color:var(--white); display:block; margin-bottom:4px; font-size:14px; }
+
+/* ── CARDS NUMBER ── */
+.cards-picker {
+  display:flex; align-items:center; gap:0; margin-bottom:20px;
+  border:1px solid var(--border);
+}
+.cards-picker button {
+  width:44px; height:44px; background:rgba(184,149,42,0.1);
+  border:none; color:var(--gold-light); font-size:20px;
+  cursor:pointer; flex-shrink:0; transition:background 0.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.cards-picker button:hover { background:rgba(184,149,42,0.2); }
+.cards-num {
+  flex:1; text-align:center;
+  font-family:'Playfair Display',serif; font-size:1.3rem;
+  color:var(--white); padding:10px;
+  border-left:1px solid var(--border);
+  border-right:1px solid var(--border);
+}
+.cards-label { font-size:11px; color:var(--warm-gray); letter-spacing:1px; display:block; }
+
+/* ── BINGO RESULT ── */
+.result-hero {
+  text-align:center; padding:36px 0 28px;
+}
+.result-hero h2 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,6vw,2.6rem); font-weight:400;
+  color:var(--white); margin-bottom:6px;
+}
+.result-hero h2 em { font-style:italic; color:var(--gold-light); }
+.result-hero p { font-size:14px; color:var(--warm-gray); margin-top:10px; }
+
+/* BINGO CARD PREVIEW */
+.bingo-preview {
+  border:2px solid var(--gold);
+  background: var(--white);
+  margin-bottom:20px;
+  box-shadow:0 0 40px rgba(184,149,42,0.2), 0 0 0 1px rgba(184,149,42,0.1);
+  position:relative; overflow:hidden;
+}
+.bingo-preview::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(to right, var(--gold), var(--gold-light), var(--gold));
+}
+.bp-header {
+  background: var(--ink); padding:18px 20px; text-align:center;
+}
+.bp-header h3 {
+  font-family:'Playfair Display',serif; color:var(--gold-light);
+  font-size:1.2rem; font-style:italic; font-weight:400;
+}
+.bp-header p { font-size:10px; letter-spacing:2px; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-top:3px; }
+.bp-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:0;
+  background:#E8E0D0;
+}
+.bp-cell {
+  padding:14px 8px; text-align:center; background:white;
+  border-right:1px solid #E8E0D0; border-bottom:1px solid #E8E0D0;
+  font-size:11.5px; font-family:'DM Sans',sans-serif; color:#1A1008;
+  line-height:1.3; min-height:54px; display:flex;
+  align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.2s; user-select:none;
+  position:relative;
+}
+.bp-cell:nth-child(3n) { border-right:none; }
+.bp-cell:hover { background:#FDF8EE; }
+.bp-cell.marked {
+  background: var(--ink); color: var(--gold-light); font-weight:600;
+}
+.bp-cell.marked::after {
+  content:'♪'; position:absolute; bottom:3px; right:5px;
+  font-size:9px; color:var(--gold); opacity:0.6;
+}
+.bp-cell.bingo-line {
+  background: linear-gradient(135deg, #B8952A, #D4AF5A);
+  color: var(--ink); font-weight:700;
+  animation: pulse-gold 0.6s ease;
+}
+@keyframes pulse-gold {
+  0%,100% { transform:scale(1); }
+  50% { transform:scale(1.05); }
+}
+.bp-footer {
+  padding:10px 20px; background:var(--ink);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.bp-footer span { font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:1px; }
+.bp-footer strong { font-family:'Playfair Display',serif; color:var(--gold); font-size:14px; }
+
+/* BINGO ALERT */
+.bingo-alert {
+  display:none; position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(0.5);
+  z-index:200; text-align:center;
+  background: linear-gradient(135deg, var(--ink), #1A1408);
+  border:2px solid var(--gold);
+  padding:32px 48px;
+  box-shadow:0 0 60px rgba(184,149,42,0.5), 0 0 120px rgba(184,149,42,0.2);
+  transition: transform 0.4s cubic-bezier(.16,1,.3,1), opacity 0.3s;
+  opacity:0;
+}
+.bingo-alert.show {
+  display:block;
+  animation: popIn 0.5s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes popIn {
+  from { transform:translate(-50%,-50%) scale(0.5); opacity:0; }
+  to { transform:translate(-50%,-50%) scale(1); opacity:1; }
+}
+.bingo-alert h2 {
+  font-family:'Playfair Display',serif;
+  font-size:3rem; color:var(--gold-light);
+  font-style:italic; letter-spacing:4px;
+  text-shadow:0 0 30px rgba(184,149,42,0.8);
+}
+.bingo-alert p { color:var(--cream); font-size:14px; margin-top:8px; }
+
+/* CONFETTI */
+.confetti-piece {
+  position:fixed; width:8px; height:8px;
+  top:-10px; pointer-events:none; z-index:300;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { transform: translateY(110vh) rotate(720deg); opacity:0; }
+}
+
+/* PDF INFO */
+.pdf-info {
+  background:rgba(184,149,42,0.06); border:1px solid var(--border);
+  padding:16px 20px; margin-bottom:20px;
+  display:flex; align-items:center; gap:16px;
+}
+.pdf-icon { font-size:28px; flex-shrink:0; }
+.pdf-text { font-size:13px; color:var(--cream); line-height:1.5; }
+.pdf-text strong { color:var(--gold-light); display:block; margin-bottom:2px; }
+
+/* ACTION BUTTONS */
+.actions { display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
+
+/* DJ PITCH */
+.dj-pitch {
+  background: linear-gradient(135deg, rgba(184,149,42,0.15), rgba(184,149,42,0.05));
+  border:1px solid var(--gold);
+  padding:28px; text-align:center; margin-bottom:28px; position:relative; overflow:hidden;
+}
+.dj-pitch::before {
+  content:'♪'; position:absolute; right:20px; top:16px;
+  font-size:48px; color:rgba(184,149,42,0.08);
+}
+.dj-pitch-tag {
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--gold); font-weight:700; margin-bottom:12px;
+}
+.dj-pitch h3 {
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem; font-weight:400; color:var(--white);
+  margin-bottom:10px; line-height:1.3;
+}
+.dj-pitch h3 em { font-style:italic; color:var(--gold-light); }
+.dj-pitch p { font-size:13.5px; color:var(--warm-gray); line-height:1.65; margin-bottom:18px; }
+.dj-pitch-cta {
+  display:inline-block; padding:13px 28px;
+  background:var(--gold); color:var(--ink);
+  font-size:11px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase;
+  text-decoration:none; transition:all 0.2s;
+}
+.dj-pitch-cta:hover { filter:brightness(1.1); box-shadow:0 6px 20px rgba(184,149,42,0.4); }
+.dj-reviews { display:flex; justify-content:center; gap:24px; margin-top:16px; flex-wrap:wrap; }
+.dj-review { font-size:12px; color:var(--warm-gray); }
+.stars { color:var(--gold); letter-spacing:2px; font-size:12px; }
+
+/* LOADING */
+.loader {
+  display:none; position:fixed; inset:0;
+  background:rgba(13,11,8,0.92); z-index:100;
+  align-items:center; justify-content:center; flex-direction:column; gap:20px;
+}
+.loader.show { display:flex; }
+.loader-ring {
+  width:52px; height:52px;
+  border:2px solid rgba(184,149,42,0.2);
+  border-top-color:var(--gold); border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.loader-text {
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem; font-style:italic; color:var(--cream);
+}
+
+/* ── CUSTOM SONG INPUT ── */
+.custom-song-wrap {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px dashed rgba(184,149,42,0.35);
+  background: rgba(184,149,42,0.04);
+}
+.custom-song-label {
+  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold-light); font-weight: 600; margin-bottom: 10px;
+}
+.custom-song-row {
+  display: flex; gap: 8px;
+}
+.custom-song-input {
+  flex: 1; padding: 11px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; color: var(--cream);
+  outline: none; transition: border-color 0.2s;
+}
+.custom-song-input::placeholder { color: var(--warm-gray); }
+.custom-song-input:focus { border-color: var(--gold); background: rgba(184,149,42,0.06); }
+.custom-song-btn {
+  padding: 11px 18px; flex-shrink: 0;
+  background: var(--gold); border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; color: var(--ink);
+  cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.custom-song-btn:hover { filter: brightness(1.1); }
+
+/* ── FIESTA SCORE BLOCK ── */
+.fiesta-block {
+  position: relative;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+
+/* Connector line from DJ pitch */
+.fiesta-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-bottom: -1px;
+}
+.fiesta-connector-line {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(to bottom, var(--gold), rgba(184,149,42,0.3));
+}
+.fiesta-connector-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+}
+
+.fiesta-card {
+  background: linear-gradient(135deg, #0F1A0D, #0A1508);
+  border: 1px solid rgba(80,180,60,0.35);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.fiesta-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(to right, #4CAF50, #8BC34A, #4CAF50);
+}
+.fiesta-card::after {
+  content: '🎉';
+  position: absolute; right: 20px; top: 18px;
+  font-size: 44px; opacity: 0.08;
+}
+
+.fiesta-eyebrow {
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: #6DBF60; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.fiesta-eyebrow::before {
+  content: '';
+  display: inline-block; width: 20px; height: 1px;
+  background: #6DBF60;
+}
+
+.fiesta-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem; font-weight: 400;
+  color: var(--white); line-height: 1.3;
+  margin-bottom: 10px;
+}
+.fiesta-card h3 em { font-style: italic; color: #8BC34A; }
+
+.fiesta-card p {
+  font-size: 13.5px; color: var(--warm-gray);
+  line-height: 1.65; margin-bottom: 20px;
+}
+
+/* Score preview pills */
+.fiesta-scores {
+  display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.fiesta-score-pill {
+  padding: 6px 14px;
+  border: 1px solid rgba(80,180,60,0.25);
+  background: rgba(80,180,60,0.07);
+  font-size: 12px; color: rgba(255,255,255,0.7);
+  display: flex; align-items: center; gap: 6px;
+}
+.score-bar {
+  width: 32px; height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px; overflow: hidden;
+}
+.score-fill { height: 100%; border-radius: 2px; }
+
+.btn-fiesta {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, #3D8B35, #5CAF50);
+  border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: white; text-decoration: none;
+  transition: all 0.25s;
+  position: relative; overflow: hidden;
+}
+.btn-fiesta::after {
+  content: '→';
+  position: absolute; right: 20px;
+  font-size: 16px; letter-spacing: 0;
+  transition: transform 0.2s;
+}
+.btn-fiesta:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 8px 24px rgba(80,180,60,0.35);
+  transform: translateY(-1px);
+}
+.btn-fiesta:hover::after { transform: translateX(4px); }
+
+.fiesta-note {
+  text-align: center; margin-top: 10px;
+  font-size: 11px; color: var(--warm-gray);
+}
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+  background:var(--cream); color:var(--ink);
+  padding:12px 24px; font-size:13px; font-weight:500;
+  z-index:999; white-space:nowrap; pointer-events:none;
+  animation:fadeUp 0.3s ease;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+}
+
+footer {
+  text-align:center; padding:24px 0;
+  border-top:1px solid rgba(255,255,255,0.06);
+  font-size:11px; color:var(--warm-gray); letter-spacing:1px;
+}
+
+@media (max-width:480px) {
+  .form-row { grid-template-columns:1fr; }
+  .card { padding:20px; }
+  header { padding:36px 0 32px; }
+  .dj-pitch { padding:22px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero-bg"></div>
+<div class="loader" id="loader"><div class="loader-ring"></div><div class="loader-text">Generando vuestros cartones...</div></div>
+<div class="bingo-alert" id="bingoAlert"><h2>🎉 BINGO!</h2><p id="bingoAlertMsg">¡Línea completada!</p></div>
+
+<div class="wrap">
+
+<header>
+  <div class="dj-badge">DJ Ponte · Bodas en Galicia</div>
+  <h1>Vuestro bingo<br><em>musical de boda</em></h1>
+  <p class="hero-sub">Totalmente gratis. Genera cartones únicos para todos vuestros invitados y convierte la música en el momento más épico de la noche.</p>
+  <div class="free-badge">✦ 100% Gratuito ✦</div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-step active" id="ps1">Canciones</div>
+  <div class="progress-dot active" id="pd1"></div>
+  <div class="progress-line"></div>
+  <div class="progress-dot" id="pd2"></div>
+  <div class="progress-step" id="ps2">Datos</div>
+  <div class="progress-line"></div>
+  <div class="progress-dot" id="pd3"></div>
+  <div class="progress-step" id="ps3">Vuestro bingo</div>
+</div>
+
+<!-- ══ SCREEN 1: SONGS ══ -->
+<div class="screen active" id="s1">
+  <div class="card">
+    <div class="card-title">Elige las canciones</div>
+    <div class="card-sub">Selecciona 20 canciones para el pool — cada cartón mostrará 9 diferentes</div>
+
+    <div class="counter-bar">
+      <div class="counter-label">Seleccionadas</div>
+      <div class="counter-track">
+        <div class="counter-fill" id="cFill" style="width:0%"></div>
+      </div>
+      <div class="counter-right">
+        <div class="counter-val" id="cNum">0</div>
+        <div class="counter-slash">/</div>
+        <div class="counter-total">20</div>
+      </div>
+    </div>
+
+    <div class="cat-tabs" id="catTabs">
+      <button class="cat-tab active" onclick="switchCat(this,'bodas')">💒 Boda</button>
+      <button class="cat-tab" onclick="switchCat(this,'actuales')">🔥 Actuales</button>
+      <button class="cat-tab" onclick="switchCat(this,'romanticas')">🌹 Románticas</button>
+      <button class="cat-tab" onclick="switchCat(this,'disco')">🎧 House & Disco</button>
+      <button class="cat-tab" onclick="switchCat(this,'espanol')">🇪🇸 Español</button>
+    </div>
+
+    <div class="songs-grid" id="songsGrid"></div>
+
+    <!-- CUSTOM SONG INPUT -->
+    <div class="custom-song-wrap">
+      <div class="custom-song-label">¿Falta alguna canción especial?</div>
+      <div class="custom-song-row">
+        <input type="text" id="customSongInput" class="custom-song-input"
+               placeholder="Ej: Bohemian Rhapsody, nuestra canción..."
+               onkeydown="if(event.key==='Enter'){addCustomSong();}" />
+        <button class="custom-song-btn" onclick="addCustomSong()">+ Añadir</button>
+      </div>
+    </div>
+
+    <div class="sel-section">
+      <div class="sel-label">Tu selección</div>
+      <div class="sel-tags" id="selTags"><span class="empty-note">Toca una canción para añadirla</span></div>
+    </div>
+  </div>
+
+  <button class="btn btn-gold" id="btn1" onclick="goTo(2)" disabled>Continuar →</button>
+</div>
+
+<!-- ══ SCREEN 2: FORM ══ -->
+<div class="screen" id="s2">
+  <div class="card">
+    <div class="card-title">Vuestros datos</div>
+    <div class="card-sub">Para personalizar vuestro bingo y enviároslo por email</div>
+
+    <div class="form-group">
+      <label>Nombres de los novios ✦</label>
+      <input type="text" id="fNames" placeholder="Ej: Laura y Marcos" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fecha de la boda</label>
+        <input type="date" id="fDate" />
+      </div>
+      <div class="form-group">
+        <label>Localización</label>
+        <input type="text" id="fVenue" placeholder="A Coruña, Galicia..." />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email ✦</label>
+      <input type="email" id="fEmail" placeholder="correo@paravosotros.com" />
+    </div>
+    <div class="form-group">
+      <label>WhatsApp</label>
+      <input type="tel" id="fPhone" placeholder="+34 666 000 000" />
+    </div>
+
+    <div class="form-group">
+      <label>¿Cuántos cartones necesitáis?</label>
+      <div class="cards-picker">
+        <button onclick="changeCards(-10)">−</button>
+        <div class="cards-num" id="cardsNum">50 <span class="cards-label">cartones</span></div>
+        <button onclick="changeCards(10)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DJ QUALIFIER -->
+  <div class="dj-qualifier">
+    <div class="dj-qualifier-title">Una pregunta rápida... ✦</div>
+    <div class="dj-options" id="djOptions">
+      <label class="dj-opt" onclick="selectDJ(this,'no')">
+        <input type="radio" name="djStatus" value="no">
+        <div class="dj-radio"></div>
+        <div class="dj-opt-text">
+          Todavía no tenemos DJ
+          <span class="dj-opt-sub">Estamos buscando</span>
+        </div>
+      </label>
+      <label class="dj-opt" onclick="selectDJ(this,'buscando')">
+        <input type="radio" name="djStatus" value="buscando">
+        <div class="dj-radio"></div>
+        <div class="dj-opt-text">
+          Estamos comparando opciones
+          <span class="dj-opt-sub">Tenemos presupuestos pero no hemos decidido</span>
+        </div>
+      </label>
+      <label class="dj-opt" onclick="selectDJ(this,'si')">
+        <input type="radio" name="djStatus" value="si">
+        <div class="dj-radio"></div>
+        <div class="dj-opt-text">
+          Ya tenemos DJ contratado
+          <span class="dj-opt-sub">Todo cerrado</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="hot-lead" id="hotLead">
+    <p><strong>🎵 ¡Podemos ser vuestro DJ!</strong>DJ Ponte lleva años creando momentos únicos en bodas de Galicia. Tras recibir vuestro bingo os contactaremos con disponibilidad y presupuesto sin compromiso.</p>
+  </div>
+
+  <button class="btn btn-gold" onclick="submitForm()">Generar mi bingo gratis →</button>
+  <button class="btn btn-outline" onclick="goTo(1)">← Cambiar canciones</button>
+</div>
+
+<!-- ══ SCREEN 3: RESULT ══ -->
+<div class="screen" id="s3">
+  <div class="result-hero">
+    <h2 id="resultTitle">¡Vuestro bingo<br><em>está listo!</em></h2>
+    <p id="resultSub">Tocad las celdas para marcar cuando suene cada canción. ¡Que gane el mejor!</p>
+  </div>
+
+  <!-- BINGO PREVIEW (interactive) -->
+  <div class="bingo-preview" id="bingoPreview"></div>
+
+  <div class="pdf-info">
+    <div class="pdf-icon">📄</div>
+    <div class="pdf-text">
+      <strong id="pdfTitle">PDF con 50 cartones únicos listo</strong>
+      Cada invitado tendrá un cartón diferente. Imprime, reparte y deja que la magia suceda.
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-gold" onclick="downloadPDF()">⬇ Descargar PDF con todos los cartones</button>
+    <button class="btn btn-whatsapp" onclick="shareWhatsApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Compartir por WhatsApp
+    </button>
+    <button class="btn btn-outline" onclick="resetAll()">Crear otro bingo →</button>
+  </div>
+
+  <!-- DJ PITCH -->
+  <div class="dj-pitch" id="djPitch">
+    <div class="dj-pitch-tag">✦ Para vuestra boda ✦</div>
+    <h3>¿Queréis que la música<br><em>sea perfecta de principio a fin?</em></h3>
+    <p>DJ Ponte lleva años convirtiendo bodas gallegas en noches imposibles de olvidar. Vinilo en el aperitivo, fiesta hasta el amanecer y un bingo como este incluido en cada boda.</p>
+    <a href="https://djponte.com" target="_blank" class="dj-pitch-cta">Ver disponibilidad para vuestra fecha →</a>
+    <div class="dj-reviews">
+      <div class="dj-review"><div class="stars">★★★★★</div>Google Reviews</div>
+      <div class="dj-review">🎧 DJ Bodas Galicia</div>
+      <div class="dj-review">📍 A Coruña</div>
+    </div>
+  </div>
+
+  <!-- FIESTA SCORE BLOCK -->
+  <div class="fiesta-block" id="fiestaBlock">
+    <div class="fiesta-connector">
+      <div class="fiesta-connector-line"></div>
+      <div class="fiesta-connector-dot"></div>
+    </div>
+    <div class="fiesta-card">
+      <div class="fiesta-eyebrow">El siguiente paso</div>
+      <h3>Vuestro bingo ya está listo.<br><em>¿Pero qué nota tiene vuestra fiesta?</em></h3>
+      <p>Muchas bodas tienen buena música pero pierden el momento clave por un pequeño detalle. Descubrid en 3 preguntas si vuestra fiesta está a punto de ser épica o si hay algo que mejorar.</p>
+
+      <div class="fiesta-scores">
+        <div class="fiesta-score-pill">
+          🎵 Música
+          <div class="score-bar"><div class="score-fill" style="width:85%;background:#4CAF50;"></div></div>
+        </div>
+        <div class="fiesta-score-pill">
+          💃 Ambiente
+          <div class="score-bar"><div class="score-fill" style="width:60%;background:#FFC107;"></div></div>
+        </div>
+        <div class="fiesta-score-pill">
+          🎤 Momentos
+          <div class="score-bar"><div class="score-fill" style="width:40%;background:#FF5722;"></div></div>
+        </div>
+      </div>
+
+      <a href="https://djponteabailar.com" target="_blank" class="btn-fiesta">
+        Descubrir la nota de mi fiesta &nbsp;· &nbsp;3 preguntas
+      </a>
+      <div class="fiesta-note">⚡ Gratis · Sin registro · Resultado inmediato</div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /wrap -->
+
+<footer>DJ Ponte · djponte.com · Bodas en Galicia · +34 669 060 192</footer>
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+const SONGS = {
+  bodas:['Colgando en tus manos','Danza Kuduro','Despacito','Happy','I Gotta Feeling','Sweet Caroline','Uptown Funk','We Are Family','YMCA','Living on a Prayer','Don\'t Stop Me Now','Wonderwall','Shake It Off','Can\'t Stop the Feeling','Jump Around','Mr. Brightside','Shut Up and Dance','September','Dancing Queen','Livin\' la Vida Loca'],
+  actuales:['Flowers','As It Was','Levitating','Blinding Lights','Dance Monkey','Shape of You','Happier','Peaches','Stay','Bad Guy','Watermelon Sugar','Dynamite','Save Your Tears','Good 4 U','Heat Waves','Montero','Butter','Industry Baby','Shivers','Permission to Dance'],
+  romanticas:['All of Me','A Thousand Years','Perfect','Can\'t Help Falling in Love','Thinking Out Loud','Make You Feel My Love','At Last','La Vie en Rose','Your Song','The Way You Look Tonight','Unchained Melody','Stand by Me','L-O-V-E','Fly Me to the Moon','What a Wonderful World','Unforgettable','Crazy in Love','Just the Way You Are','I Don\'t Want to Miss a Thing','Have I Told You Lately'],
+  disco:['September','Le Freak','Good Times','Stayin\' Alive','I Will Survive','Last Dance','Funkytown','Got to Be Real','Let\'s Dance','Rock With You','Superstition','Sir Duke','Higher Ground','Push It','Jump to the Beat','Everybody Dance','Le Spank','Don\'t Leave Me This Way','I\'m Coming Out','Finally'],
+  espanol:['Quiero','La Flaca','Bamboleo','Por el amor de una mujer','Cuando nadie me ve','La Camisa Negra','El Pescador','Preciosa','Un Millón de Amigos','Oye cómo va','Chan Chan','Bésame Mucho','Quizás quizás','La Bamba','Clandestino','María','El Perdón','Vivir mi Vida','Despacito','Loco']
+};
+
+let selected=[], currentCat='bodas', numCards=50, djStatus='', leadData={};
+
+// ═══════════════════════════════════
+// SONGS
+// ═══════════════════════════════════
+function renderSongs(){
+  const g=document.getElementById('songsGrid');
+  g.innerHTML=SONGS[currentCat].map((s,i)=>`
+    <button class="song-chip ${selected.includes(s)?'selected':''}" 
+            data-song="${i}" data-cat="${currentCat}"
+            onclick="toggleSongByRef(this)">
+      ${escHtml(s)}
+    </button>`).join('');
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toggleSongByRef(el){
+  const cat=el.dataset.cat, idx=parseInt(el.dataset.song);
+  const s=SONGS[cat][idx];
+  toggleSong(s);
+}
+
+function switchCat(el,cat){
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); currentCat=cat; renderSongs();
+}
+
+function toggleSong(s){
+  if(selected.includes(s)){
+    selected=selected.filter(x=>x!==s);
+  } else {
+    if(selected.length>=20){toast('Ya tienes 20 canciones ✓');return;}
+    selected.push(s);
+    const v=document.getElementById('cNum');
+    v.classList.add('bump'); setTimeout(()=>v.classList.remove('bump'),200);
+  }
+  updateSongUI();
+}
+
+function addCustomSong(){
+  const input=document.getElementById('customSongInput');
+  const val=input.value.trim();
+  if(!val){ toast('Escribe el nombre de la canción'); return; }
+  if(val.length>60){ toast('Nombre demasiado largo (máx. 60 caracteres)'); return; }
+  if(selected.includes(val)){ toast('Esa canción ya está en tu lista'); input.value=''; return; }
+  if(selected.length>=20){ toast('Ya tienes 20 canciones ✓'); return; }
+  selected.push(val);
+  input.value='';
+  const v=document.getElementById('cNum');
+  v.classList.add('bump'); setTimeout(()=>v.classList.remove('bump'),200);
+  updateSongUI();
+  toast(`✓ "${val}" añadida`);
+}
+
+function updateSongUI(){
+  const n=selected.length;
+  document.getElementById('cNum').textContent=n;
+  document.getElementById('cFill').style.width=(n/20*100)+'%';
+  document.getElementById('btn1').disabled=n<20;
+  const el=document.getElementById('selTags');
+  if(n===0){
+    el.innerHTML='<span class="empty-note">Toca una canción para añadirla</span>';
+  } else {
+    el.innerHTML=selected.map((s,i)=>`
+      <div class="sel-tag" data-idx="${i}">
+        ${escHtml(s)}<span class="x">×</span>
+      </div>`).join('');
+    // Event delegation for tags
+    el.querySelectorAll('.sel-tag').forEach(tag=>{
+      tag.addEventListener('click',()=>{
+        const idx=parseInt(tag.dataset.idx);
+        toggleSong(selected[idx]);
+      });
+    });
+  }
+  renderSongs();
+}
+
+// ═══════════════════════════════════
+// CARDS PICKER
+// ═══════════════════════════════════
+function changeCards(d){
+  numCards=Math.max(10,Math.min(200,numCards+d));
+  document.getElementById('cardsNum').innerHTML=numCards+' <span class="cards-label">cartones</span>';
+}
+
+// ═══════════════════════════════════
+// DJ QUALIFIER
+// ═══════════════════════════════════
+function selectDJ(el,val){
+  document.querySelectorAll('.dj-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected'); djStatus=val;
+  document.getElementById('hotLead').classList.toggle('show', val==='no'||val==='buscando');
+}
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function goTo(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateProgress(n);
+}
+
+function updateProgress(n){
+  for(let i=1;i<=3;i++){
+    const dot=document.getElementById('pd'+i), step=document.getElementById('ps'+i);
+    dot.className='progress-dot'+(i<n?' done':i===n?' active':'');
+    step.className='progress-step'+(i<n?' done':i===n?' active':'');
+  }
+}
+
+// ═══════════════════════════════════
+// FORM SUBMIT
+// ═══════════════════════════════════
+async function submitForm(){
+  const names=document.getElementById('fNames').value.trim();
+  const email=document.getElementById('fEmail').value.trim();
+  if(!names){toast('Añadid vuestros nombres 💍'); return;}
+  if(!email||!email.includes('@')){toast('El email no parece correcto'); return;}
+
+  leadData={
+    names, email,
+    phone: document.getElementById('fPhone').value.trim(),
+    date: document.getElementById('fDate').value,
+    venue: document.getElementById('fVenue').value.trim(),
+    songs: selected, numCards, djStatus,
+    timestamp: new Date().toISOString(),
+    source: 'bingo-bodas-djponte-v2'
+  };
+
+  document.getElementById('loader').classList.add('show');
+
+  // Webhook Make.com
+  try {
+    await fetch('https://hook.eu2.make.com/plf8vw18tr9kapa5dif6k0d1lngmyv8v',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(leadData)
+    }).catch(()=>{});
+  } catch(e){}
+
+  setTimeout(()=>{
+    document.getElementById('loader').classList.remove('show');
+    showResult();
+  }, 2000);
+}
+
+// ═══════════════════════════════════
+// RESULT
+// ═══════════════════════════════════
+function showResult(){
+  const first=leadData.names?escHtml(leadData.names.split(/\s+y\s+/i)[0]):'';
+  document.getElementById('resultTitle').innerHTML=`¡${first||'Vuestro'} bingo<br><em>está listo!</em>`;
+  document.getElementById('pdfTitle').textContent=`PDF con ${numCards} cartones únicos listo`;
+
+  // Show/hide DJ pitch + FiestaScore based on status
+  const pitch=document.getElementById('djPitch');
+  pitch.style.display=(djStatus==='si')?'none':'block';
+  // FiestaScore siempre visible — incluso si tienen DJ, optimizar la fiesta les aporta valor
+  document.getElementById('fiestaBlock').style.display='block';
+
+  buildBingoPreview();
+  goTo(3);
+}
+
+function buildBingoPreview(){
+  const card=shuffle([...selected]).slice(0,9);
+  const dateStr=leadData.date?new Date(leadData.date+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}):'';
+  const safeName=escHtml(leadData.names||'Bingo de bodas');
+  const safeVenue=escHtml(leadData.venue||'');
+  const safeDateStr=escHtml(dateStr);
+  document.getElementById('bingoPreview').innerHTML=`
+    <div class="bp-header">
+      <h3>${safeName}</h3>
+      <p>${safeDateStr}${safeVenue?' · '+safeVenue:''}</p>
+    </div>
+    <div class="bp-grid" id="bpGrid">
+      ${card.map((s,i)=>`<div class="bp-cell" data-idx="${i}" onclick="markCell(this)">${escHtml(s)}</div>`).join('')}
+    </div>
+    <div class="bp-footer"><span>Toca para marcar · DJ Ponte</span><strong>♪</strong></div>
+  `;
+}
+
+// ═══════════════════════════════════
+// INTERACTIVE BINGO
+// ═══════════════════════════════════
+const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+let bingoAlerted=false;
+
+function markCell(el){
+  el.classList.toggle('marked');
+  checkBingo();
+}
+
+function checkBingo(){
+  const cells=document.querySelectorAll('.bp-cell');
+  if(!cells.length) return;
+  const marked=[...cells].map(c=>c.classList.contains('marked'));
+  for(const line of LINES){
+    if(line.every(i=>marked[i])){
+      if(!bingoAlerted){
+        bingoAlerted=true;
+        line.forEach(i=>cells[i].classList.add('bingo-line'));
+        showBingoAlert();
+        launchConfetti();
+      }
+      return;
+    }
+  }
+  bingoAlerted=false;
+  cells.forEach(c=>c.classList.remove('bingo-line'));
+}
+
+function showBingoAlert(){
+  const a=document.getElementById('bingoAlert');
+  a.classList.add('show');
+  setTimeout(()=>a.classList.remove('show'),3500);
+}
+
+function launchConfetti(){
+  const colors=['#B8952A','#D4AF5A','#F7EDD0','#FFFFFF','#FAF6EE','#C9A84C'];
+  for(let i=0;i<60;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='confetti-piece';
+      p.style.cssText=`
+        left:${Math.random()*100}vw;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+        animation-duration:${2+Math.random()*2}s;
+        animation-delay:${Math.random()*0.5}s;
+        transform:rotate(${Math.random()*360}deg);
+      `;
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),4000);
+    },i*30);
+  }
+}
+
+// ═══════════════════════════════════
+// PDF GENERATION
+// ═══════════════════════════════════
+function downloadPDF(){
+  toast('Generando PDF... puede tardar unos segundos ⏳');
+  setTimeout(()=>{
+    try { generatePDF(); }
+    catch(e){ toast('Error al generar PDF. Intenta de nuevo.'); console.error(e); }
+  }, 100);
+}
+
+function generatePDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210, H=297;
+  const cardsPerPage=2;
+  // Fixed safe dimensions
+  const margin=12;
+  const cardW=W-(margin*2);               // 186mm
+  const pageH=H-16;                        // 281mm usable
+  const cardH=Math.floor(pageH/cardsPerPage)-4; // ~136mm each
+  const headerH=20, footerH=7;
+  const gridH=cardH-headerH-footerH;
+  const cols=3, rows=3;
+  const cellW=cardW/cols;
+  const cellH=gridH/rows;
+
+  const names=leadData.names||'DJ Ponte';
+  const dateStr=leadData.date?new Date(leadData.date+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}):'';
+  const venue=leadData.venue||'';
+
+  for(let c=0;c<numCards;c++){
+    const cardSongs=shuffle([...selected]).slice(0,9);
+    const posInPage=c%cardsPerPage;
+    if(c>0 && posInPage===0) doc.addPage();
+
+    const ox=margin;
+    const oy=8+(posInPage*(cardH+8));
+
+    // ── Outer border (gold) ──
+    doc.setDrawColor(184,149,42);
+    doc.setLineWidth(0.8);
+    doc.rect(ox,oy,cardW,cardH);
+
+    // ── Gold top accent bar ──
+    doc.setFillColor(184,149,42);
+    doc.rect(ox,oy,cardW,2,'F');
+
+    // ── Header bg (dark) ──
+    doc.setFillColor(13,11,8);
+    doc.rect(ox,oy+2,cardW,headerH-2,'F');
+
+    // ── Header: Novios name ──
+    doc.setFont('helvetica','bolditalic');
+    doc.setFontSize(12); doc.setTextColor(212,175,90);
+    doc.text(names, ox+cardW/2, oy+10, {align:'center'});
+
+    // ── Header: date + venue ──
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(6.5); doc.setTextColor(140,125,90);
+    const subLine=[dateStr, venue].filter(Boolean).join(' · ').toUpperCase();
+    if(subLine) doc.text(subLine, ox+cardW/2, oy+16, {align:'center'});
+
+    // ── Card number (top right) ──
+    doc.setFontSize(6); doc.setTextColor(100,85,55);
+    doc.text(`#${c+1}`, ox+cardW-3, oy+7, {align:'right'});
+
+    // ── Grid ──
+    for(let r=0;r<rows;r++){
+      for(let cl=0;cl<cols;cl++){
+        const idx=r*cols+cl;
+        const cx=ox+cl*cellW;
+        const cy=oy+headerH+r*cellH;
+
+        // Alternating cell bg
+        doc.setFillColor((r+cl)%2===0?250:255, (r+cl)%2===0?246:255, (r+cl)%2===0?238:255);
+        doc.rect(cx,cy,cellW,cellH,'F');
+
+        // Cell border
+        doc.setDrawColor(220,210,190); doc.setLineWidth(0.15);
+        doc.rect(cx,cy,cellW,cellH);
+
+        // Song text
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(7); doc.setTextColor(20,15,5);
+        const songLines=doc.splitTextToSize(cardSongs[idx], cellW-5);
+        const totalTH=songLines.length*3.2;
+        const startY=cy+cellH/2-totalTH/2+3.2;
+        doc.text(songLines, cx+cellW/2, startY, {align:'center'});
+      }
+    }
+
+    // ── Footer bg ──
+    const fy=oy+headerH+gridH;
+    doc.setFillColor(13,11,8);
+    doc.rect(ox,fy,cardW,footerH,'F');
+
+    // ── Footer: tagline left ──
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(5.5); doc.setTextColor(120,100,60);
+    doc.text('Tu boda. Tu música. Tu bingo.', ox+5, fy+4.5);
+
+    // ── Footer: DJ PONTE right (gold, prominent) ──
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(6.5); doc.setTextColor(184,149,42);
+    doc.text('DJ PONTE · djponte.com', ox+cardW-5, fy+4.5, {align:'right'});
+  }
+
+  doc.save(`bingo-boda-${(names).toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}.pdf`);
+  toast(`✓ PDF descargado · ${numCards} cartones únicos`);
+}
+
+// ═══════════════════════════════════
+// WHATSAPP SHARE
+// ═══════════════════════════════════
+function shareWhatsApp(){
+  const names=leadData.names||'los novios';
+  const date=leadData.date?new Date(leadData.date+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long'}):'';
+  // Sanitize for WhatsApp message (plain text, no HTML needed)
+  const safeNames=names.replace(/[<>]/g,'');
+  const msg=`🎵 ¡Bingo musical de la boda de ${safeNames}${date?' ('+date+')':''}!\n\nCrea el tuyo gratis en:\n👉 djponte.com/bingo-boda\n\n_Con DJ Ponte, tu boda será la que todos recuerden_ 🎧\n\n¿Qué nota tiene vuestra fiesta? → djponteabailar.com`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ═══════════════════════════════════
+// UTILS
+// ═══════════════════════════════════
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function toast(msg){
+  const t=document.createElement('div');
+  t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+function resetAll(){
+  selected=[]; currentCat='bodas'; numCards=50; djStatus=''; leadData={}; bingoAlerted=false;
+  document.querySelectorAll('.cat-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.querySelectorAll('.dj-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('hotLead').classList.remove('show');
+  document.getElementById('bingoPreview').innerHTML='';
+  document.getElementById('customSongInput').value='';
+  ['fNames','fEmail','fPhone','fDate','fVenue'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cardsNum').innerHTML='50 <span class="cards-label">cartones</span>';
+  updateSongUI();
+  goTo(1);
+}
+
+// Init
+renderSongs();
+</script>
+</body>
+</html>
