@@ -1599,7 +1599,7 @@ function shareWhatsApp(){
   const date=leadData.date?new Date(leadData.date+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long'}):'';
   // Sanitize for WhatsApp message (plain text, no HTML needed)
   const safeNames=names.replace(/[<>]/g,'');
-  const msg=`🎵 ¡Bingo musical de la boda de ${safeNames}${date?' ('+date+')':''}!\n\nCrea el tuyo gratis en:\n👉 djponte.com/bingo-boda\n\n_Con DJ Ponte, tu boda será la que todos recuerden_ 🎧\n\n¿Qué nota tiene vuestra fiesta? → djponteabailar.com`;
+  const msg=`🎵 ¡Bingo musical de la boda de ${safeNames}${date?' ('+date+')':''}!\n\nCrea el tuyo gratis en:\n👉 djponte.com/\n\n_Con DJ Ponte, tu boda será la que todos recuerden_ 🎧\n\n¿Qué nota tiene vuestra fiesta? → djponteabailar.com`;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 
